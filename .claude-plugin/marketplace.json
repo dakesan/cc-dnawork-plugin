@@ -5,8 +5,8 @@
     "email": "odake@example.com"
   },
   "metadata": {
-    "description": "DNA Work and Bioinformatics Skills - curated scientific skills for molecular biology, genomics, and bioinformatics research",
-    "version": "1.0.0"
+    "description": "DNA Work and Bioinformatics Skills - curated scientific skills for molecular biology, genomics, and bioinformatics research. Includes BLAT integration, advanced MSA, and IGV automation.",
+    "version": "1.1.0"
   },
   "plugins": [
     {
@@ -15,6 +15,9 @@
       "source": "./",
       "strict": false,
       "skills": [
+        "./scientific-skills/blat-integration",
+        "./scientific-skills/msa-advanced",
+        "./scientific-skills/igv-integration",
         "./scientific-skills/biopython",
         "./scientific-skills/pysam",
         "./scientific-skills/scikit-bio",
