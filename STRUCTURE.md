@@ -8,28 +8,32 @@ cc-dnawork-plugin のプロジェクト構造と概要です。
 cc-dnawork-plugin/
 ├── .claude-plugin/
 │   └── marketplace.json          # Claude Code plugin configuration
-├── scientific-skills/             # 68個のバイオインフォマティクススキル
-│   ├── biopython/
-│   │   ├── SKILL.md              # スキルドキュメント
-│   │   ├── references/           # 参考資料
+├── scientific-skills/
+│   ├── sequence-io/              # 本番スキル（整理済み）
+│   │   ├── SKILL.md
+│   │   └── references/
+│   ├── inbox/                    # 未整理スキル（68個）
+│   │   ├── biopython/
+│   │   ├── pysam/
+│   │   ├── scanpy/
 │   │   └── ...
-│   ├── pysam/
-│   ├── scanpy/
-│   ├── rdkit/
-│   ├── [64 more skills...]
-│   └── document-skills/          # ドキュメント処理スキル
-│       ├── docx/
-│       ├── pdf/
-│       ├── pptx/
-│       └── xlsx/
+│   └── archived/                 # アーカイブ（統合元など）
 ├── README.md                      # プロジェクト概要（英語）
 ├── GETTING_STARTED.md            # 使用開始ガイド（日本語）
 ├── STRUCTURE.md                  # このファイル
 ├── LICENSE                       # MIT ライセンス
 └── .gitignore                    # Git除外ファイル
-
-Total: 68 skills + documentation
 ```
+
+## Skill Organization Strategy
+
+スキルは責任範囲を明確にするため、段階的に整理中です。
+
+| ディレクトリ | 状態 | 説明 |
+|-------------|------|------|
+| `sequence-io/` | 本番 | FASTA/GenBank/FASTQ の読み書き |
+| `inbox/` | 未整理 | K-Dense からの移行スキル（68個） |
+| `archived/` | アーカイブ | 統合済みの旧スキル |
 
 ## Files
 
@@ -64,10 +68,33 @@ Total: 68 skills + documentation
 **`.gitignore`**
 - Git から除外するファイル定義
 
-## Skills Organization（スキルの分類）
+## Production Skills（本番スキル）
+
+### sequence-io
+
+FASTA/GenBank/FASTQ ファイルの読み書きと配列操作に特化。
+
+| 機能 | ツール |
+|------|--------|
+| ファイル読み書き | Bio.SeqIO |
+| 配列操作 | Bio.Seq |
+| インデックスアクセス | pysam.FastaFile + faidx |
+| 配列統計 | Bio.SeqUtils (GC%, Tm, MW) |
+
+**参照ファイル:**
+- `references/biopython_seqio.md` - Bio.Seq, Bio.SeqIO
+- `references/faidx.md` - pysam による高速アクセス
+- `references/formats.md` - フォーマット仕様
+- `references/utilities.md` - 統計計算
+
+---
+
+## Inbox Skills（未整理スキル）
+
+以下は `inbox/` 内のスキル一覧です。順次整理予定。
 
 ### 1. DNA Sequence Analysis（DNA配列解析）
-- `biopython/` - Comprehensive molecular biology toolkit
+- `biopython/` - Comprehensive molecular biology toolkit (→ sequence-io に統合予定)
 - `pysam/` - SAM/BAM/VCF file processing
 - `scikit-bio/` - Biological sequence operations
 - `bioservices/` - Biological web services
@@ -240,27 +267,35 @@ Installation instructions
 Practical usage examples
 ```
 
+## Design Principles
+
+### Single Responsibility
+
+各スキルは単一の責任範囲を持つべき。
+
+**悪い例（旧 biopython）:**
+- 配列 I/O + BLAST + 構造解析 + 系統解析 + ... → 3,730 行
+
+**良い例（sequence-io）:**
+- FASTA/GenBank/FASTQ の読み書きのみ → 1,267 行
+
+### Progressive Disclosure
+
+1. **Metadata** (~100 words) - 常にコンテキストに
+2. **SKILL.md** (<5k words) - トリガー時に読み込み
+3. **references/** - 必要に応じて参照
+
 ## Integration with K-Dense Scientific Skills
 
-このプロジェクトは K-Dense-AI/claude-scientific-skills の **curated subset** です。
+このプロジェクトは K-Dense-AI/claude-scientific-skills をベースに、責任範囲を明確化したバージョンです。
 
-### 違い
+### アプローチの違い
 
 | 項目 | K-Dense | cc-dnawork |
 |------|--------|-----------|
-| スキル数 | 125+ | 68 |
-| 対象分野 | 全科学領域 | DNA/バイオインフォ |
-| ファイルサイズ | ~500MB | ~9MB |
-| インストール時間 | 長い | 短い |
-
-### メリット
-
-**cc-dnawork-plugin を使用する理由:**
-- 🎯 DNA 研究に特化
-- ⚡ インストール時間が短い
-- 📦 ディスク容量が少ない
-- 🔍 関連スキルに絞られている
-- 🚀 迷う選択肢が少ない
+| スキル数 | 125+ | 1 本番 + 68 inbox |
+| 設計方針 | ツール単位 | 責任単位 |
+| SKILL.md サイズ | 大きい | 小さい（<150行） |
 
 ## How to Use
 
@@ -282,7 +317,7 @@ Practical usage examples
 
 ## Version Information
 
-- **Version**: 1.0.0
+- **Version**: 2.0.0 (restructured)
 - **Base**: K-Dense Scientific Skills v2.10.1
 - **Python**: 3.9+
 - **License**: MIT
