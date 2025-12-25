@@ -304,15 +304,23 @@ references/
 1. ✅ 設計書作成（このファイル）
 2. ✅ Scripts 実装
    - ✅ inspect_vcf.py（filter_vcf.py と read_vcf.py を統合）
-   - ❌ vcf_stats.py（スコープ外、必要に応じて将来実装）
-3. ✅ SKILL.md 作成
+   - ✅ vcf_stats.py（統計情報計算）
+   - ✅ filter_vcf.py（VCF フィルタリング）
+3. ✅ SKILL.md 作成・更新
 4. ❌ References 作成（不要、SKILL.md で十分）
 5. ✅ テスト（実際の VCF ファイルで）
-   - ✅ Test 1: chr1 PASS only → 9 variants
-   - ✅ Test 2: chr1 all filters → 10 variants
-   - ✅ Test 3: chr1 min-qual 90 → 7 variants
-   - ✅ Test 4: region chr1:10000-14000 → 6 variants
-6. ⏳ 本番環境へ移行（コミット済み、パッケージング待ち）
+   - ✅ inspect_vcf.py テスト
+     - Test 1: chr1 PASS only → 9 variants
+     - Test 2: chr1 all filters → 10 variants
+     - Test 3: chr1 min-qual 90 → 7 variants
+     - Test 4: region chr1:10000-14000 → 6 variants
+   - ✅ vcf_stats.py テスト
+     - Test 1: chr1 stats → 10 variants with statistics
+     - Test 2: all chromosomes → 13 variants (chr1: 10, chr2: 3)
+   - ✅ filter_vcf.py テスト
+     - Test 1: chr1 PASS only → 9/10 variants
+     - Test 2: chr1 min-qual 90 → 7/10 variants
+6. ⏳ 本番環境へ移行（コミット待ち）
 
 ## Questions / Decisions Needed
 

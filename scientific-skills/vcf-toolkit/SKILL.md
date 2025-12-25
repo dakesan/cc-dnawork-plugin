@@ -1,11 +1,11 @@
 ---
 name: vcf-toolkit
-description: "VCF/BCF variant file toolkit. Filter and export variants as JSON from WGS/WES results. Use when you need to inspect variants from a specific chromosome or region, apply quality filters, and get structured JSON output for downstream analysis."
+description: "VCF/BCF variant file toolkit for WGS/WES analysis. Calculate statistics, filter variants, and export as JSON or VCF. Use when you need to inspect variants, get quality metrics, or create filtered VCF subsets from specific chromosomes or regions."
 ---
 
 # VCF Toolkit
 
-VCF/BCF ファイルから特定の chromosome や region のバリアントを抽出し、JSON 形式で出力するツールキット。WGS/WES 解析結果の確認に最適。
+VCF/BCF ファイルの統計情報計算、フィルタリング、JSON 出力を提供するツールキット。WGS/WES 解析結果の確認と品質管理に最適。
 
 ## Quick Start
 
@@ -18,19 +18,21 @@ uv pip install pysam typer
 ### Basic Usage
 
 ```bash
-# chr1 の PASS バリアントを JSON 出力（≤100 エントリ）
-python scripts/inspect_vcf.py --vcf variants.vcf --chrom chr1 --output chr1.json
+# 1. VCF 統計情報を取得
+python scripts/vcf_stats.py --vcf variants.vcf.gz --chrom chr1
 
-# 特定領域を指定
-python scripts/inspect_vcf.py --vcf variants.vcf --region chr1:1000000-2000000 --output region.json
-
-# フィルタ条件を追加
-python scripts/inspect_vcf.py \
-  --vcf variants.vcf \
-  --chrom chr1 \
+# 2. 高品質バリアントのみをフィルタして新しい VCF を作成
+python scripts/filter_vcf.py \
+  --vcf variants.vcf.gz \
+  --output high_quality.vcf \
   --min-qual 30 \
-  --min-dp 10 \
-  --output filtered.json
+  --min-dp 10
+
+# 3. フィルタされたバリアントを JSON で出力（≤100 エントリ）
+python scripts/inspect_vcf.py \
+  --vcf high_quality.vcf \
+  --chrom chr1 \
+  --output chr1.json
 ```
 
 ## Scripts
@@ -89,6 +91,86 @@ VCF ファイルから chromosome または region を指定してバリアン�
     }
   ]
 }
+```
+
+### vcf_stats.py - VCF Statistics
+
+VCF ファイルの統計情報を計算し、JSON 形式で出力。バリアント数、品質分布、深度分布などを確認できる。
+
+#### 引数
+
+**必須：**
+- `--vcf PATH` - 入力 VCF ファイル
+
+**オプション：**
+- `--chrom TEXT` - chromosome 指定（未指定時は全 chromosome）
+- `--region TEXT` - 領域指定（例: `chr1:1000-2000`）
+- `--output PATH` - JSON 出力パス（未指定時は標準出力）
+
+#### 出力内容（JSON）
+
+- `total_variants` - 総バリアント数
+- `filter_counts` - フィルタ別内訳（PASS, LowQual など）
+- `variant_types` - バリアントタイプ別内訳（SNP, insertion, deletion）
+- `chrom_counts` - chromosome ごとのバリアント数
+- `quality_stats` - 品質スコア統計（min, max, mean, median）
+- `depth_stats` - 深度統計（INFO/DP）
+- `allele_frequency_stats` - アレル頻度統計（INFO/AF）
+
+#### 使用例
+
+```bash
+# chr1 の統計情報
+python scripts/vcf_stats.py --vcf variants.vcf.gz --chrom chr1
+
+# 全 chromosome の統計情報（JSON ファイルに出力）
+python scripts/vcf_stats.py --vcf variants.vcf.gz --output stats.json
+
+# 特定領域の統計情報
+python scripts/vcf_stats.py --vcf variants.vcf.gz --region chr1:10000-20000
+```
+
+### filter_vcf.py - VCF Filtering
+
+VCF ファイルをフィルタリングして新しい VCF ファイルとして出力。品質、深度、アレル頻度などでフィルタ可能。
+
+#### 引数
+
+**必須：**
+- `--vcf PATH` - 入力 VCF ファイル
+- `--output PATH` - 出力 VCF ファイル
+
+**オプション：**
+- `--chrom TEXT` - chromosome 指定
+- `--region TEXT` - 領域指定（例: `chr1:1000-2000`）
+- `--min-qual FLOAT` - 最小品質スコア
+- `--min-dp INT` - 最小深度（INFO/DP）
+- `--min-af FLOAT` - 最小アレル頻度（INFO/AF）
+- `--max-af FLOAT` - 最大アレル頻度（INFO/AF）
+- `--pass-only` - PASS バリアントのみ（デフォルト: False）
+
+#### 使用例
+
+```bash
+# chr1 の PASS バリアントのみを抽出
+python scripts/filter_vcf.py \
+  --vcf variants.vcf.gz \
+  --output chr1_pass.vcf \
+  --chrom chr1 \
+  --pass-only
+
+# 高品質バリアント（QUAL >= 30, DP >= 10）のみを抽出
+python scripts/filter_vcf.py \
+  --vcf variants.vcf.gz \
+  --output high_quality.vcf \
+  --min-qual 30 \
+  --min-dp 10
+
+# レアバリアント（AF <= 0.01）のみを抽出
+python scripts/filter_vcf.py \
+  --vcf variants.vcf.gz \
+  --output rare_variants.vcf \
+  --max-af 0.01
 ```
 
 ## 使用例
