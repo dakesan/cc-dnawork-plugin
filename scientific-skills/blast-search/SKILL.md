@@ -1,123 +1,37 @@
 ---
 name: blast-search
-description: "NCBI BLAST sequence similarity search. Web API (qblast) for standard searches, gget for quick queries. Find homologs, identify unknown sequences, validate primers. For genome mapping, use blat-search instead."
+description: "NCBI BLAST sequence similarity search via the Common URL API. Use when a user wants to run BLAST programmatically with blastn/blastp and retrieve results in JSON/XML/Text."
 ---
 
 # BLAST Search
 
-NCBI BLAST (Basic Local Alignment Search Tool) による配列類似性検索。
-
-## When to Use This Skill
-
-This skill should be used when:
-
-- Finding similar sequences in databases (homolog search)
-- Identifying unknown sequences
-- Validating primer specificity
-- Finding orthologs across species
-- Checking sequence conservation
-
-## When NOT to Use This Skill
-
-- **Genome mapping / position identification** → Use `blat-search`
-- **Reading/writing sequence files** → Use `sequence-io`
-- **Multiple sequence alignment** → Use `msa-advanced`
-
-## Tool Selection Guide
-
-| Task | Tool | Speed |
-|------|------|-------|
-| Quick search (single sequence) | `gget.blast` | Fast |
-| Standard search with options | `Bio.Blast.NCBIWWW` | Medium |
-| Batch search / custom parameters | `Bio.Blast.NCBIWWW` | Medium |
-| Large-scale local search | Local BLAST+ | TBD |
+NCBI BLAST (Basic Local Alignment Search Tool) を Common URL API で実行するスキルです。
 
 ## Quick Start
 
-### Installation
+### Install
 
 ```bash
-uv pip install biopython gget
+uv pip install requests typer
 ```
 
-### Quick BLAST with gget
+### Run with FASTA
 
-```python
-import gget
-
-# Simple nucleotide BLAST
-results = gget.blast("ATGCGATCGATCGATCG")
-
-# Protein BLAST
-results = gget.blast("MRHILKQWERTY", program="blastp")
+```bash
+python scripts/run_blast_url_api.py run --program blastn --database core_nt --fasta path/to/query.fasta
 ```
 
-### Standard BLAST with Biopython
+### Run with raw sequence
 
-```python
-from Bio.Blast import NCBIWWW, NCBIXML
-
-# Run BLAST
-result_handle = NCBIWWW.qblast("blastn", "nt", "ATGCGATCGATCG")
-blast_record = NCBIXML.read(result_handle)
-
-# Display top hits
-for alignment in blast_record.alignments[:5]:
-    hsp = alignment.hsps[0]
-    print(f"{alignment.title[:60]}...")
-    print(f"  E-value: {hsp.expect}, Identity: {hsp.identities}/{hsp.align_length}")
+```bash
+python scripts/run_blast_url_api.py run --program blastp --database swissprot --sequence MTEYKLVVVG...
 ```
 
-## BLAST Programs
+### Save output
 
-| Program | Query | Database | Use Case |
-|---------|-------|----------|----------|
-| `blastn` | DNA | DNA | Nucleotide similarity |
-| `blastp` | Protein | Protein | Protein similarity |
-| `blastx` | DNA (translated) | Protein | Find protein homologs |
-| `tblastn` | Protein | DNA (translated) | Search genomic DNA |
-| `tblastx` | DNA (translated) | DNA (translated) | Compare coding regions |
-
-## Common Databases
-
-### Nucleotide
-
-| Database | Description |
-|----------|-------------|
-| `nt` | All GenBank + EMBL + DDBJ + PDB |
-| `refseq_rna` | RefSeq RNA sequences |
-
-### Protein
-
-| Database | Description |
-|----------|-------------|
-| `nr` | Non-redundant protein sequences |
-| `refseq_protein` | RefSeq protein sequences |
-| `swissprot` | Curated UniProtKB/Swiss-Prot |
-| `pdb` | Protein Data Bank sequences |
-
-## Reference Documentation
-
-### `references/ncbi_web.md`
-
-- `NCBIWWW.qblast()` parameters
-- Rate limiting and best practices
-- Organism-specific searches (`entrez_query`)
-- Saving and caching results
-
-### `references/result_parsing.md`
-
-- XML parsing with `NCBIXML`
-- Extracting alignments and HSPs
-- Calculating percent identity
-- Filtering by E-value
-- Tabular output format (outfmt 6)
-
-## Common Patterns
-
-### Filter by E-value
-
-```python
+```bash
+python scripts/run_blast_url_api.py run --program blastn --database core_nt --sequence ACTG... --format-type JSON2 --output blast.json
+```
 E_VALUE_THRESH = 1e-10
 
 for alignment in blast_record.alignments:
