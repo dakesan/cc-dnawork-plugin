@@ -34,5 +34,5 @@ python scripts/run_blat_local.py run --reference CHM13 --sequence ACTG...
 
 ## Output
 
-- 出力は PSL 形式。
-- `--output` を指定しない場合は stdout に PSL を出力。
+- 出力は JSON 形式。
+- `--output` を指定しない場合は stdout に JSON を出力。

@@ -32,7 +32,7 @@ python scripts/run_blat_local.py run --reference CHM13 --sequence ACTG...
 Save JSON output to a file:
 
 ```bash
-python scripts/run_blat_local.py run --reference hg38 --sequence ACTG... --output blat.psl
+python scripts/run_blat_local.py run --reference hg38 --sequence ACTG... --output blat.json
 ```
 
 ## When to read references

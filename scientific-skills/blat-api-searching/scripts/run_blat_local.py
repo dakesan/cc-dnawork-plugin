@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import json
 from pathlib import Path
 from typing import Optional
 
@@ -49,6 +50,47 @@ def _write_temp_fasta(sequence: str) -> Path:
         tmp.write(sequence.encode("ascii", errors="strict"))
         tmp.write(b"\n")
     return tmp_path
+
+
+def _parse_psl(path: Path) -> list[dict]:
+    records: list[dict] = []
+    with path.open("r", encoding="utf-8") as handle:
+        lines = [line.rstrip("\n") for line in handle if line.strip()]
+    if not lines:
+        return records
+    data_lines = lines
+    if lines[0].startswith("psLayout") or lines[0].startswith("match"):
+        data_lines = lines[5:]
+    for line in data_lines:
+        parts = line.split("\t")
+        if len(parts) < 21:
+            continue
+        records.append(
+            {
+                "match": int(parts[0]),
+                "mismatch": int(parts[1]),
+                "rep_match": int(parts[2]),
+                "n_count": int(parts[3]),
+                "q_num_insert": int(parts[4]),
+                "q_base_insert": int(parts[5]),
+                "t_num_insert": int(parts[6]),
+                "t_base_insert": int(parts[7]),
+                "strand": parts[8],
+                "q_name": parts[9],
+                "q_size": int(parts[10]),
+                "q_start": int(parts[11]),
+                "q_end": int(parts[12]),
+                "t_name": parts[13],
+                "t_size": int(parts[14]),
+                "t_start": int(parts[15]),
+                "t_end": int(parts[16]),
+                "block_count": int(parts[17]),
+                "block_sizes": parts[18].strip(","),
+                "q_starts": parts[19].strip(","),
+                "t_starts": parts[20].strip(","),
+            }
+        )
+    return records
 
 
 def _ensure_hg38_2bit() -> Path:
@@ -104,7 +146,7 @@ def run(
     output: Optional[Path] = typer.Option(
         None,
         "--output",
-        help="Output path for PSL results.",
+        help="Output path for JSON results.",
     ),
 ) -> None:
     """
@@ -116,7 +158,7 @@ def run(
         raise typer.BadParameter("Provide exactly one of --fasta or --sequence.")
 
     if fasta is not None:
-        query_seq = _read_single_fasta_sequence(fasta)
+        _read_single_fasta_sequence(fasta)
         query_fasta = fasta
     else:
         query_seq = (sequence or "").strip()
@@ -124,14 +166,16 @@ def run(
             raise typer.BadParameter("sequence must be non-empty.")
         query_fasta = _write_temp_fasta(query_seq)
 
-    if output is None:
-        output = Path(tempfile.mkstemp(prefix="blat_output_", suffix=".psl")[1])
+    psl_path = Path(tempfile.mkstemp(prefix="blat_output_", suffix=".psl")[1])
 
-    cmd = ["blat", str(ref_path), str(query_fasta), str(output)]
+    cmd = ["blat", str(ref_path), str(query_fasta), str(psl_path)]
     subprocess.run(cmd, check=True)
 
-    if output and output.exists():
-        typer.echo(output.read_text(encoding="utf-8"))
+    records = _parse_psl(psl_path)
+    json_text = json.dumps(records, indent=2, ensure_ascii=True)
+    if output is not None:
+        output.write_text(json_text, encoding="utf-8")
+    typer.echo(json_text)
 
 
 if __name__ == "__main__":
