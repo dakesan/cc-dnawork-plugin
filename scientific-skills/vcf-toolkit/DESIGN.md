@@ -25,6 +25,27 @@ VCF/BCF ファイルの操作に特化したスキル。bcftools を活用した
 3. **JSON 出力** - BLAT/BLAST と同様、他ツールと連携しやすい形式
 4. **データ量制限** - 100 エントリ超えたらエラー（JSON 変換時）
 
+### JSON 形式を選択した理由
+
+タブ区切り形式と比較検討した結果、JSON 形式を採用：
+
+**トークン効率**：
+- タブ区切り（VCF 形式）の方がトークン数は少ない（約1/3）
+- しかし、100エントリ制限があるためトークン爆発は防げる
+
+**構造化データの必要性**：
+- INFO フィールドは複数のキー=値ペア（DP=50;AF=0.5;AC=1）
+- サンプルデータは階層構造（各サンプル × 複数フィールド）
+- ALT は配列（複数の alternate allele）
+- タブ区切りでは文字列として保存され、下流でパース必要
+
+**AI による処理**：
+- JSON は self-descriptive（列の意味が明確）
+- Claude による解析時にエラーが少ない
+- プログラムで処理しやすい
+
+**結論**: トークン効率よりも構造化データの利点を優先
+
 ## Scripts 仕様
 
 ### inspect_vcf.py - VCF フィルタリング & JSON 出力
@@ -41,45 +62,65 @@ VCF/BCF ファイルの操作に特化したスキル。bcftools を活用した
 ```
 # 必須
 --vcf PATH              入力 VCF ファイル
+--chrom TEXT            染色体指定（例: chr1）※--region と排他
+--region TEXT           領域指定（例: chr1:10000-20000）※--chrom と排他
 
-# 出力
---output PATH           JSON 出力パス（オプション、未指定時は標準出力）
-
-# フィルタ条件
+# フィルタ条件（全てオプショナル）
 --min-qual FLOAT        最小品質スコア（QUAL >= X）
 --min-dp INT            最小深度（INFO/DP >= X）
 --min-af FLOAT          最小アレル頻度（INFO/AF >= X）
 --max-af FLOAT          最大アレル頻度（INFO/AF <= X）
---pass-only             FILTER=PASS のみ（フラグ）
---region TEXT           領域指定（例: chr1:1000-2000）
+--pass-only             FILTER=PASS のみ（デフォルト: True）
+--all-filters           全フィルタを含む（--pass-only を無効化）
 
 # 制限
 --max-variants INT      最大バリアント数（デフォルト: 100）
 --force                 エントリ数制限を無視（フラグ）
+
+# 出力
+--output PATH           JSON 出力パス（オプション、未指定時は標準出力）
 ```
+
+**注意**:
+- `--chrom` または `--region` のどちらか一方は必須
+- `--pass-only` はデフォルト有効（全フィルタを含む場合は `--all-filters` を指定）
 
 **使用例**:
 ```bash
-# 基本：フィルタなしで全エントリを JSON 出力
-python scripts/inspect_vcf.py --vcf input.vcf --output all.json
+# Test 1: chr1 の PASS フィルタのみ（デフォルト）
+uv run python scripts/inspect_vcf.py \
+  --vcf test-data/sample.vcf.gz \
+  --chrom chr1 \
+  --output test1_chr1_pass.json
+# → 9 variants
 
-# フィルタリング：高品質バリアントのみ
-python scripts/inspect_vcf.py \
-  --vcf input.vcf \
-  --min-qual 30 \
-  --min-dp 10 \
-  --pass-only \
-  --output filtered.json
+# Test 2: chr1 の全フィルタを含む
+uv run python scripts/inspect_vcf.py \
+  --vcf test-data/sample.vcf.gz \
+  --chrom chr1 \
+  --all-filters \
+  --output test2_chr1_all.json
+# → 10 variants (LowQual も含む)
 
-# 領域指定
-python scripts/inspect_vcf.py \
-  --vcf input.vcf \
-  --region chr1:1000000-2000000 \
-  --output region.json
+# Test 3: chr1 で品質スコア >= 90
+uv run python scripts/inspect_vcf.py \
+  --vcf test-data/sample.vcf.gz \
+  --chrom chr1 \
+  --min-qual 90 \
+  --output test3_chr1_qual90.json
+# → 7 variants
+
+# Test 4: 領域指定（chr1:10000-14000）
+uv run python scripts/inspect_vcf.py \
+  --vcf test-data/sample.vcf.gz \
+  --region chr1:10000-14000 \
+  --output test4_region.json
+# → 6 variants
 
 # 制限を無視（大量出力）
-python scripts/inspect_vcf.py \
-  --vcf huge.vcf \
+uv run python scripts/inspect_vcf.py \
+  --vcf huge.vcf.gz \
+  --chrom chr1 \
   --force \
   --output large.json
 ```
@@ -87,30 +128,35 @@ python scripts/inspect_vcf.py \
 **出力形式（JSON）**:
 ```json
 {
-  "num_variants": 45,
+  "num_variants": 9,
   "samples": ["sample1", "sample2"],
   "variants": [
     {
       "chrom": "chr1",
-      "pos": 12345,
-      "id": "rs123456",
+      "pos": 10177,
+      "id": "rs367896724",
       "ref": "A",
-      "alts": ["G"],
+      "alts": ["AC"],
       "qual": 100.0,
       "filter": ["PASS"],
       "info": {
         "DP": 50,
         "AF": [0.5],
-        "AC": [25]
+        "AC": [1]
       },
       "samples": {
-        "sample1": {"GT": "0/1", "DP": 25, "GQ": 99},
-        "sample2": {"GT": "0/0", "DP": 25, "GQ": 99}
+        "sample1": {"GT": [0, 1], "DP": 25, "GQ": 99},
+        "sample2": {"GT": [0, 0], "DP": 25, "GQ": 99}
       }
     }
   ]
 }
 ```
+
+**注意**: pysam によってパースされた形式で出力される：
+- `GT` は配列形式：`[0, 1]`（元の VCF: `0/1`）
+- `AF` などの INFO フィールドも配列形式：`[0.5]`（元の VCF: `AF=0.5`）
+- 全てのフィールドは適切な型に変換される（文字列 → 数値/配列）
 
 **エラーハンドリング**:
 ```bash
@@ -256,22 +302,32 @@ references/
 ## Implementation Plan
 
 1. ✅ 設計書作成（このファイル）
-2. ⏳ Scripts 実装
-   - [ ] filter_vcf.py（優先度: 高）
-   - [ ] read_vcf.py（優先度: 高）
-   - [ ] vcf_stats.py（優先度: 低、後回し可）
-3. ⏳ SKILL.md 作成
-4. ⏳ References 作成（必要に応じて）
-5. ⏳ テスト（実際の VCF ファイルで）
-6. ⏳ 本番環境へ移行
+2. ✅ Scripts 実装
+   - ✅ inspect_vcf.py（filter_vcf.py と read_vcf.py を統合）
+   - ❌ vcf_stats.py（スコープ外、必要に応じて将来実装）
+3. ✅ SKILL.md 作成
+4. ❌ References 作成（不要、SKILL.md で十分）
+5. ✅ テスト（実際の VCF ファイルで）
+   - ✅ Test 1: chr1 PASS only → 9 variants
+   - ✅ Test 2: chr1 all filters → 10 variants
+   - ✅ Test 3: chr1 min-qual 90 → 7 variants
+   - ✅ Test 4: region chr1:10000-14000 → 6 variants
+6. ⏳ 本番環境へ移行（コミット済み、パッケージング待ち）
 
 ## Questions / Decisions Needed
 
-1. ✅ vcf-toolkit という名前で良いか？（または vcf-tools, vcf-ops など）
-2. ✅ filter_vcf.py の引数は十分か？
-3. ⏳ References は必要か？
-4. ⏳ vcf_stats.py は実装するか（後回しでも可）？
+1. ✅ vcf-toolkit という名前で良いか？
+   - **決定**: vcf-toolkit で確定
+2. ✅ inspect_vcf.py の引数は十分か？
+   - **決定**: --chrom or --region 必須、--pass-only デフォルト有効で確定
+3. ✅ References は必要か？
+   - **決定**: 不要、SKILL.md で十分
+4. ✅ vcf_stats.py は実装するか？
+   - **決定**: スコープ外、必要に応じて将来実装
+5. ✅ 出力形式は JSON か TSV か？
+   - **決定**: JSON 形式で確定（階層構造の表現が必須）
+   - タブ区切りはトークン効率は良いが、構造化データの利点を優先
 
 ---
 
-**Note**: この設計書はユーザーと協議しながら更新する
+**Note**: 設計完了、実装・テスト済み、本番環境移行待ち
