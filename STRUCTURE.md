@@ -9,9 +9,8 @@ cc-dnawork-plugin/
 ├── .claude-plugin/
 │   └── marketplace.json          # Claude Code plugin configuration
 ├── scientific-skills/
-│   ├── sequence-io/              # 本番スキル（整理済み）
-│   │   ├── SKILL.md
-│   │   └── references/
+│   ├── sequence-io/              # 本番スキル
+│   ├── blast-search/             # 本番スキル
 │   ├── inbox/                    # 未整理スキル（68個）
 │   │   ├── biopython/
 │   │   ├── pysam/
@@ -32,6 +31,7 @@ cc-dnawork-plugin/
 | ディレクトリ | 状態 | 説明 |
 |-------------|------|------|
 | `sequence-io/` | 本番 | FASTA/GenBank/FASTQ の読み書き |
+| `blast-search/` | 本番 | NCBI BLAST 配列類似性検索 |
 | `inbox/` | 未整理 | K-Dense からの移行スキル（68個） |
 | `archived/` | アーカイブ | 統合済みの旧スキル |
 
@@ -86,6 +86,21 @@ FASTA/GenBank/FASTQ ファイルの読み書きと配列操作に特化。
 - `references/faidx.md` - pysam による高速アクセス
 - `references/formats.md` - フォーマット仕様
 - `references/utilities.md` - 統計計算
+
+### blast-search
+
+NCBI BLAST による配列類似性検索。Web API 優先。
+
+| 機能 | ツール |
+|------|--------|
+| Web BLAST | Bio.Blast.NCBIWWW (qblast) |
+| クイック検索 | gget.blast |
+| 結果パース | Bio.Blast.NCBIXML |
+| ローカル BLAST | TBD |
+
+**参照ファイル:**
+- `references/ncbi_web.md` - qblast() の使い方
+- `references/result_parsing.md` - XML パース、フィルタリング
 
 ---
 
