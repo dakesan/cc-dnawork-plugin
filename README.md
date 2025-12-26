@@ -1,269 +1,343 @@
 # cc-dnawork-plugin
 
-A curated collection of **68 scientific skills** for DNA work, molecular biology, genomics, and bioinformatics research using Claude Code.
+A curated collection of **7 production-ready skills** for whole genome sequencing (WGS) analysis and bioinformatics workflows using Claude Code.
 
 ## Overview
 
-This plugin is a specialized subset of [K-Dense-AI/claude-scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills), specifically curated for DNA-related research and bioinformatics workflows. It includes all essential tools for:
+This plugin provides essential tools for WGS/WES analysis pipelines:
 
-- 🧬 DNA sequence analysis and manipulation
-- 🔬 Genomic data processing and analysis
-- 🧪 Molecular biology and chemistry
-- 📊 Data visualization and analysis
-- 💾 Access to major scientific databases
-- 🤖 Advanced machine learning and AI tools
-- 📚 Scientific communication and literature review
-- 🧪 Laboratory automation workflows
+- 🧬 DNA sequence I/O and manipulation
+- 🔍 Sequence similarity search (BLAST, BLAT)
+- 📊 Alignment file processing (BAM/SAM/CRAM)
+- 🧪 Variant calling and annotation (VCF/BCF)
+- 📸 Genomic visualization (IGV integration)
+- 🎯 Cancer gene annotation (COSMIC database)
 
-## Skills Included
+## Production Skills
 
-### DNA Sequence Analysis (6 skills)
-- **BioPython** - Comprehensive Python toolkit for molecular biology
-- **pysam** - SAM/BAM/VCF file processing
-- **scikit-bio** - Advanced biological sequence operations
-- **bioservices** - Access to biological web services
-- **gget** - Fast genome information retrieval
-- **gtars** - Genomic tools and resources
+### 1. sequence-io
+Read, write, and manipulate biological sequences in multiple formats.
 
-### Single-Cell & RNA-seq Analysis (4 skills)
-- **Scanpy** - Single-cell RNA-seq analysis
-- **CellXGene Census** - Large-scale single-cell data integration
-- **PyDESeq2** - Differential expression analysis
-- **Arboreto** - Gene regulatory network inference
+**Formats**: FASTA, GenBank, FASTQ
+**Features**:
+- Parse and write sequence files
+- Format conversion
+- Quality score handling (FASTQ)
+- Sequence statistics and manipulation
 
-### Genomic Tools (4 skills)
-- **ETE Toolkit** - Phylogenetic analysis and tree manipulation
-- **DeepTools** - Genomic signal processing
-- **Geniml** - Machine learning for genomics
-- **ESM** - Protein language models
+**Use cases**: Sequence file conversion, quality filtering, format standardization
 
-### Chemistry & Molecular Design (6 skills)
-- **RDKit** - Cheminformatics and molecular manipulation
-- **Datamol** - Molecular data processing
-- **DeepChem** - Deep learning for chemistry
-- **DiffDock** - Molecular docking
-- **MedChem** - Drug-likeness assessment
-- **Molfeat** - Molecular feature computation
+### 2. blast-search
+NCBI BLAST sequence similarity search.
 
-### Genomic Databases (14 skills)
-- AlphaFold DB, Ensembl, NCBI Gene, UniProt, PDB
-- PubMed, ClinVar, COSMIC, ChEMBL
-- PubChem, ZINC, DrugBank
-- KEGG, Reactome, STRING
+**Features**:
+- BLASTN, BLASTP, BLASTX, TBLASTN, TBLASTX
+- E-value filtering and alignment scoring
+- Multiple database support
+- Result parsing and annotation
 
-### Visualization & Analysis (4 skills)
-- **Matplotlib** - Publication-quality figures
-- **Seaborn** - Statistical data visualization
-- **Plotly** - Interactive visualizations
-- **NetworkX** - Network analysis and visualization
+**Use cases**: Homology search, sequence annotation, gene identification
 
-### Scientific Communication (10 skills)
-- Literature review, Scientific writing, Citation management
-- Research lookup, Hypothesis generation
-- Scientific visualization, Clinical reports
-- And more...
+### 3. blat-api-searching
+Fast genome mapping with BLAT (BLAST-Like Alignment Tool).
 
-### Laboratory Integration (7 skills)
-- Benchling, DNAnexus, LatchBio, OMERO
-- Opentrons, Protocols.io, LabArchives
+**Features**:
+- Rapid sequence-to-genome alignment
+- UCSC Genome Browser integration
+- High-speed mapping for large datasets
+- Multiple genome builds support
 
-### Plus 13 additional supporting skills
+**Use cases**: Quick genome mapping, PCR primer design, sequence localization
 
-## Getting Started
+### 4. bam-toolkit
+Comprehensive BAM/SAM/CRAM alignment file operations.
 
-### Installation
+**Features**:
+- Read/write BAM, SAM, CRAM files
+- Read filtering and extraction
+- Coverage calculation
+- Alignment statistics
+- Mate pair information analysis
 
-1. **Install Claude Code** (if not already installed)
-   ```bash
-   # macOS
-   curl -fsSL https://claude.ai/install.sh | bash
-   ```
+**Use cases**: Post-alignment QC, read extraction, coverage analysis
 
-2. **Add the Marketplace**
+### 5. vcf-toolkit
+VCF/BCF variant file processing and analysis.
+
+**Features**:
+- Parse and write VCF/BCF files
+- Variant filtering and annotation
+- Multi-sample VCF operations
+- Format conversion and validation
+
+**Use cases**: Variant filtering, annotation, format conversion, quality control
+
+### 6. igv-integration
+Automated IGV (Integrative Genomics Viewer) snapshot generation.
+
+**Features**:
+- Batch IGV script generation
+- Multiple BAM file visualization
+- Single region or BED file input
+- PNG screenshot output
+- Automated IGV execution
+
+**Use cases**: Visual variant validation, alignment inspection, publication figures
+
+**Example**:
+```bash
+# Generate snapshots for multiple BAM files at specific region
+python scripts/generate_igv_snapshots.py \
+  --genome hg38 \
+  --bam sample1.bam sample2.bam sample3.bam \
+  --region chr17:7577001-7578000 \
+  --output-dir ./snapshots
+```
+
+### 7. cosmic-toolkit
+COSMIC Cancer Gene Census database annotation.
+
+**Features**:
+- Gene lookup in Cancer Gene Census
+- Dynamic TSV-to-JSON conversion
+- Batch gene queries
+- All COSMIC metadata preserved
+
+**Use cases**: Cancer gene validation, somatic mutation annotation, gene prioritization
+
+**Example**:
+```bash
+# Query cancer genes
+python scripts/query_cosmic_genes.py TP53 KRAS EGFR
+```
+
+**Data setup**: Download `cancer_gene_census.csv` from [COSMIC](https://cancer.sanger.ac.uk/cosmic) and place in `data/` directory.
+
+## Installation
+
+### Prerequisites
+- **Claude Code**: Latest version
+- **Python**: 3.9+ (3.12+ recommended)
+- **uv**: Python package manager
+
+### Install Claude Code
+
+**macOS:**
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+### Install uv
+
+**macOS/Linux:**
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### Install Plugin
+
+1. Add marketplace:
    ```bash
    /plugin marketplace add dakesan/cc-dnawork-plugin
    ```
 
-3. **Install the Plugin**
+2. Install plugin:
    - Open Claude Code
    - Run `/plugin list`
-   - Select **dnawork-skills** from the available plugins
+   - Select **dnawork-skills**
    - Click **Install**
 
-### Quick Start
+## Quick Start
 
-Once installed, you can use Claude to execute complex bioinformatics workflows:
-
-```
-Analyze this DNA sequence for CpG islands, predict regulatory elements,
-and search PubMed for related studies. Use NCBI Gene, Ensembl, and
-UniProt databases to find homologous genes and their functions.
-```
+### Example 1: WGS Variant Analysis Pipeline
 
 ```
-Process this RNA-seq dataset with Scanpy, identify differentially
-expressed genes with PyDESeq2, infer gene regulatory networks with
-Arboreto, and map results to KEGG pathways.
+Analyze this WGS dataset:
+1. Check FASTQ quality and statistics (sequence-io)
+2. Verify BAM alignment quality and coverage (bam-toolkit)
+3. Parse and filter VCF variants (vcf-toolkit)
+4. Annotate cancer-related genes (cosmic-toolkit)
+5. Generate IGV snapshots for top variants (igv-integration)
+6. Search homologous sequences (blast-search)
 ```
 
+### Example 2: Cancer Somatic Variant Annotation
+
 ```
-Design CRISPR sgRNAs for these target genes. Analyze off-target
-binding with RDKit, check ClinVar for disease associations,
-and find relevant clinical trials.
+Process this tumor-normal VCF:
+1. Extract somatic variants (vcf-toolkit)
+2. Check genes in COSMIC Cancer Gene Census (cosmic-toolkit)
+3. Generate IGV screenshots for driver mutations (igv-integration)
+4. Create summary report with annotations
 ```
 
-## Skill Categories
+### Example 3: Sequence Validation
 
-### By Functionality
-
-**Data Processing**
-- BioPython, pysam, scikit-bio, Scanpy, PyDESeq2
-
-**Database Access**
-- 14 scientific databases (Ensembl, PubMed, UniProt, etc.)
-
-**Analysis & Visualization**
-- Matplotlib, Seaborn, Plotly, NetworkX, ETE Toolkit
-
-**Chemistry & Molecular Design**
-- RDKit, DeepChem, DiffDock, Datamol, MedChem, Molfeat
-
-**Machine Learning**
-- Deep learning frameworks, protein language models (ESM)
-
-**Scientific Communication**
-- Literature review, scientific writing, visualization
-
-**Laboratory Automation**
-- Integration with Benchling, Opentrons, LatchBio, DNAnexus
+```
+Validate this amplicon sequence:
+1. Convert GenBank to FASTA (sequence-io)
+2. Map to reference genome (blat-api-searching)
+3. Verify alignment coverage (bam-toolkit)
+4. Search for homologs in NCBI (blast-search)
+```
 
 ## Architecture
 
 ```
 cc-dnawork-plugin/
 ├── .claude-plugin/
-│   └── marketplace.json       # Plugin configuration
-├── scientific-skills/         # 68 individual skills
-│   ├── biopython/
-│   ├── pysam/
-│   ├── scanpy/
-│   ├── ... (65 more skills)
-│   └── document-skills/
-├── README.md                  # This file
-└── LICENSE                    # MIT License
+│   └── marketplace.json          # Plugin metadata
+├── scientific-skills/
+│   ├── sequence-io/              # FASTA/GenBank/FASTQ I/O
+│   ├── blast-search/             # NCBI BLAST
+│   ├── blat-api-searching/       # BLAT genome mapping
+│   ├── bam-toolkit/              # BAM/SAM/CRAM operations
+│   ├── vcf-toolkit/              # VCF/BCF operations
+│   ├── igv-integration/          # IGV automation
+│   └── cosmic-toolkit/           # COSMIC annotation
+├── STRUCTURE.md                  # Detailed structure
+├── README.md                     # This file
+└── LICENSE                       # MIT License
 ```
 
 Each skill contains:
-- `SKILL.md` - Comprehensive documentation
-- `references/` - Additional documentation and examples
-- `scripts/` - Executable code (if applicable)
-- `assets/` - Templates and resources (if applicable)
-
-## Usage Examples
-
-### Example 1: Sequence Analysis Pipeline
-```
-Use BioPython to parse this FASTA file, calculate sequence statistics,
-identify ORFs, and perform sequence alignment against UniProt database.
-```
-
-### Example 2: RNA-seq Data Integration
-```
-Load RNA-seq data with Scanpy, identify cell types, analyze differential
-expression with PyDESeq2, visualize with Seaborn, and find pathways
-in KEGG database.
-```
-
-### Example 3: Variant Annotation
-```
-Parse this VCF file with pysam, annotate variants with Ensembl,
-check pathogenicity in ClinVar, find cancer mutations in COSMIC,
-and search PubMed for related studies.
-```
-
-### Example 4: Drug Discovery
-```
-Query ChEMBL for kinase inhibitors, analyze SAR with RDKit,
-perform virtual docking with DiffDock, and check drug-likeness
-with MedChem.
-```
+- `SKILL.md` - Complete documentation
+- `references/` - Additional documentation
+- `scripts/` - Python scripts (where applicable)
+- `data/` - User-provided data directory (where applicable)
 
 ## Requirements
 
-- **Python**: 3.9+ (3.12+ recommended)
-- **uv**: Python package manager
-  ```bash
-  # Install uv
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  ```
-- **Claude Code**: Latest version
-- **System**: macOS, Linux, or Windows with WSL2
+### System Requirements
+- **OS**: macOS, Linux, or Windows with WSL2
+- **Python**: 3.9+ (3.12+ recommended for best performance)
+- **Memory**: 8GB+ RAM (16GB+ recommended for large datasets)
+- **Disk**: 1GB+ for plugin + data storage
 
-## Citation
+### Python Packages
 
-If you use these skills in your research, please cite:
+Automatically installed when using skills:
+- `biopython` - Sequence I/O and manipulation
+- `pysam` - BAM/SAM/CRAM/VCF operations
+- `pandas` - Data processing (COSMIC toolkit)
+- `requests` - API access (BLAST, BLAT)
 
-```bibtex
-@software{cc_dnawork_plugin,
-  author = {Odake, Hiroyuki},
-  title = {cc-dnawork-plugin: Curated DNA Work Skills for Claude Code},
-  year = {2025},
-  url = {https://github.com/dakesan/cc-dnawork-plugin},
-  note = {Based on K-Dense Scientific Skills}
-}
+### External Tools
+
+**Optional** (for full functionality):
+- **IGV**: For igv-integration skill
+  - Download from [IGV website](https://igv.org/doc/desktop/)
+  - Ensure `igv.sh` (Linux/macOS) or `igv.bat` (Windows) is in PATH
+
+### Database Access
+
+**COSMIC toolkit** requires user-downloaded data:
+1. Register at [COSMIC](https://cancer.sanger.ac.uk/cosmic)
+2. Download Cancer Gene Census CSV
+3. Place in `scientific-skills/cosmic-toolkit/data/cancer_gene_census.csv`
+
+## Typical WGS Analysis Workflow
+
 ```
-
-Also cite the original K-Dense Scientific Skills:
-```bibtex
-@software{claude_scientific_skills_2025,
-  author = {{K-Dense Inc.}},
-  title = {Claude Scientific Skills},
-  year = {2025},
-  url = {https://github.com/K-Dense-AI/claude-scientific-skills}
-}
+Raw Reads (FASTQ)
+    ↓ [sequence-io]
+Quality Check & Statistics
+    ↓
+Alignment (External: BWA/Bowtie2)
+    ↓ [bam-toolkit]
+BAM Quality Control & Coverage Analysis
+    ↓
+Variant Calling (External: GATK/FreeBayes)
+    ↓ [vcf-toolkit]
+VCF Filtering & Annotation
+    ↓ [cosmic-toolkit]
+Cancer Gene Annotation
+    ↓ [igv-integration]
+Visual Validation (IGV Screenshots)
+    ↓ [blast-search]
+Homology Search & Validation
+    ↓
+Final Report
 ```
 
 ## Troubleshooting
 
 ### Skills Not Loading
-- Ensure Claude Code is up to date
-- Try: `/plugin marketplace remove` and add again
-- Check: `ls ~/.claude/plugins/` for installation
+```bash
+# Check installation
+/plugin list
 
-### Missing Dependencies
-- Check individual `SKILL.md` files for requirements
-- Install: `uv pip install package-name`
-- Verify: `uv pip list`
+# Reinstall
+/plugin marketplace remove dakesan/cc-dnawork-plugin
+/plugin marketplace add dakesan/cc-dnawork-plugin
+```
 
-### API Rate Limits
-- Most databases have rate limits
-- Review individual skill documentation
-- Implement caching or batch requests
+### Missing Python Dependencies
+```bash
+# Install specific package
+uv pip install package-name
 
-### Authentication Issues
-- Some databases require API keys
-- Check `SKILL.md` for authentication setup
-- Verify credentials and permissions
+# List installed packages
+uv pip list
+```
+
+### IGV Not Found
+- Ensure IGV is installed and `igv.sh`/`igv.bat` is in PATH
+- Test: `igv.sh --version` (Linux/macOS) or `igv.bat` (Windows)
+- Alternative: Specify IGV path with `--igv-path` flag
+
+### COSMIC Data Missing
+- Download Cancer Gene Census from COSMIC website
+- Place CSV file in `scientific-skills/cosmic-toolkit/data/`
+- See `cosmic-toolkit/data/README.md` for detailed instructions
+
+### Large File Processing
+- Use BAM index files (`.bai`) for faster access
+- Enable streaming mode for large VCF files
+- Consider splitting large datasets into chunks
+
+## Citation
+
+If you use this plugin in your research:
+
+```bibtex
+@software{cc_dnawork_plugin_2025,
+  author = {Odake, Hiroyuki},
+  title = {cc-dnawork-plugin: WGS Analysis Skills for Claude Code},
+  year = {2025},
+  url = {https://github.com/dakesan/cc-dnawork-plugin}
+}
+```
 
 ## Contributing
 
-Contributions are welcome! If you:
-- Find bugs or have suggestions
-- Want to add new DNA-related skills
-- Have improvements to existing skills
-
-Please open an issue or submit a pull request.
+Contributions are welcome! Please:
+- Report bugs via GitHub Issues
+- Submit pull requests for improvements
+- Follow existing code style and documentation format
 
 ## Related Resources
 
-- [K-Dense Scientific Skills](https://github.com/K-Dense-AI/claude-scientific-skills) - Parent project with 125+ skills
 - [Claude Code Documentation](https://docs.claude.com/)
-- [Claude Agent SDK](https://github.com/anthropics/anthropic-sdk-python)
+- [IGV Documentation](https://igv.org/doc/desktop/)
+- [COSMIC Database](https://cancer.sanger.ac.uk/cosmic)
+- [NCBI BLAST](https://blast.ncbi.nlm.nih.gov/)
+- [UCSC BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat)
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT License - See LICENSE file for details.
 
 ---
 
-**Created for DNA work and bioinformatics research with Claude Code** 🧬
+**Designed for WGS/WES analysis workflows** 🧬
