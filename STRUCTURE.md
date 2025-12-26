@@ -33,7 +33,9 @@ cc-dnawork-plugin/
 | `sequence-io/` | 本番 | FASTA/GenBank/FASTQ の読み書き |
 | `blast-search/` | 本番 | NCBI BLAST 配列類似性検索 |
 | `blat-api-searching/` | 本番 | BLAT ゲノムマッピング |
+| `bam-toolkit/` | 本番 | BAM/SAM/CRAM アライメントファイル操作 |
 | `vcf-toolkit/` | 本番 | VCF/BCF バリアントファイル操作 |
+| `igv-integration/` | 本番 | IGV 自動スナップショット生成 |
 | `inbox/` | 未整理 | K-Dense からの移行スキル（68個） |
 | `archived/` | アーカイブ | 統合済みの旧スキル |
 
@@ -131,6 +133,36 @@ VCF/BCF バリアントファイルの統計情報計算、フィルタリング
 - `scripts/vcf_stats.py` - バリアント統計計算（品質、深度、AF）
 - `scripts/filter_vcf.py` - VCF フィルタリング（VCF 出力）
 - `scripts/inspect_vcf.py` - バリアント抽出（JSON 出力）
+
+### bam-toolkit
+
+BAM/SAM/CRAM アライメントファイルの解析。リード抽出、indel 検出、カバレッジ統計計算。WGS/WES 解析結果の確認と品質管理。
+
+| 機能 | ツール |
+|------|--------|
+| リード抽出 | scripts/extract_reads.py |
+| Indel 検出 | scripts/extract_indels.py |
+| カバレッジ統計 | scripts/calculate_coverage.py |
+| 基盤ライブラリ | pysam |
+
+**スクリプト:**
+- `scripts/extract_reads.py` - 特定領域のリード抽出（BAM/JSON 出力）
+- `scripts/extract_indels.py` - 挿入・欠失の抽出と集計
+- `scripts/calculate_coverage.py` - カバレッジ統計計算（mean, median）
+
+### igv-integration
+
+IGV (Integrative Genomics Viewer) の自動化。複数 BAM ファイルのバッチ可視化とスナップショット生成。
+
+| 機能 | ツール |
+|------|--------|
+| スナップショット生成 | scripts/generate_igv_snapshots.py |
+| バッチモード実行 | IGV batch script |
+| 複数領域処理 | BED ファイル入力 |
+| 基盤ツール | IGV, Java |
+
+**スクリプト:**
+- `scripts/generate_igv_snapshots.py` - IGV batch script 生成と実行、PNG スナップショット出力
 
 ---
 
