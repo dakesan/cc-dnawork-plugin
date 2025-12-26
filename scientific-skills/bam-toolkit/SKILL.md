@@ -73,7 +73,12 @@ Extract reads from BAM/SAM/CRAM files for specific genomic regions and export as
       "is_reverse": false,
       "cigar": "100M",
       "is_proper_pair": true,
-      "is_duplicate": false
+      "is_duplicate": false,
+      "is_paired": true,
+      "mate_is_reverse": true,
+      "mate_reference_name": "chr1",
+      "mate_reference_start": 1200,
+      "template_length": 250
     }
   ]
 }
@@ -217,7 +222,6 @@ Calculate coverage statistics for specified genomic regions using pileup operati
 - `--output PATH` - JSON output file path (default: stdout)
 
 **Options:**
-- `--per-base` - Include per-base coverage (default: False)
 - `--min-mapq INT` - Minimum mapping quality (default: 0)
 - `--min-baseq INT` - Minimum base quality (default: 0)
 
@@ -239,31 +243,18 @@ Calculate coverage statistics for specified genomic regions using pileup operati
     "bases_with_coverage": 995,
     "bases_without_coverage": 5,
     "percent_covered": 99.5
-  },
-  "per_base_coverage": [
-    {"position": 1000, "coverage": 45},
-    {"position": 1001, "coverage": 47}
-  ]
+  }
 }
 ```
-
-**Note:** `per_base_coverage` array is only included when `--per-base` flag is specified.
 
 #### Usage Examples
 
 ```bash
-# Calculate summary statistics only
+# Calculate coverage statistics
 python scripts/calculate_coverage.py \
   --bam alignment.bam \
   --region chr1:1000-2000 \
   --output coverage.json
-
-# Include per-base coverage
-python scripts/calculate_coverage.py \
-  --bam alignment.bam \
-  --region chr1:1000-2000 \
-  --per-base \
-  --output detailed_coverage.json
 
 # High-quality bases only
 python scripts/calculate_coverage.py \
@@ -329,14 +320,13 @@ python scripts/extract_reads.py \
 Assess sequencing coverage quality across target region:
 
 ```bash
-# Calculate detailed coverage with per-base information
+# Calculate coverage statistics with quality filters
 python scripts/calculate_coverage.py \
   --bam alignment.bam \
   --region chr1:1000-2000 \
-  --per-base \
   --min-mapq 30 \
   --min-baseq 20 \
-  --output detailed_coverage.json
+  --output coverage_stats.json
 
 # Extract reads from low-coverage regions for inspection
 python scripts/extract_reads.py \
@@ -377,19 +367,6 @@ Error: Invalid region format: 1000-2000. Expected format: chr1:1000-2000
 python scripts/extract_reads.py --bam alignment.bam --region chr1:1000-2000
 ```
 
-### Large Region Warning
-
-```bash
-$ python scripts/calculate_coverage.py --bam alignment.bam --region chr1:1-1000000 --per-base
-
-Warning: Large region (1,000,000 bp) with per-base coverage. Output may be very large.
-```
-
-**Solution:** Either:
-- Remove `--per-base` flag for summary statistics only
-- Specify a smaller region
-- Proceed with caution (output JSON may be several MB)
-
 ## Best Practices
 
 ### 1. Always Index BAM Files
@@ -423,25 +400,7 @@ python scripts/extract_reads.py \
   --no-duplicates
 ```
 
-### 3. Use Appropriate Region Sizes
-
-Consider region size when using `--per-base` option:
-
-```bash
-# ✅ Good: Small region with per-base coverage
-python scripts/calculate_coverage.py \
-  --bam alignment.bam \
-  --region chr1:1000-2000 \
-  --per-base
-
-# ❌ Caution: Very large region with per-base coverage
-python scripts/calculate_coverage.py \
-  --bam alignment.bam \
-  --region chr1:1-100000000 \
-  --per-base  # May produce gigantic JSON
-```
-
-### 4. Extract Reads as BAM for Further Processing
+### 3. Extract Reads as BAM for Further Processing
 
 Use BAM output when planning to use extracted reads with other tools:
 
@@ -514,15 +473,3 @@ If output is empty, check:
 1. Region contains aligned reads: `samtools view alignment.bam chr1:1000-2000 | head`
 2. Filters are not too restrictive (try reducing `--min-mapq`)
 3. Chromosome name matches BAM file
-
-### Per-Base Coverage Missing
-
-`per_base_coverage` array is only included when `--per-base` flag is specified:
-
-```bash
-# ❌ No per-base coverage in output
-python scripts/calculate_coverage.py --bam alignment.bam --region chr1:1000-2000
-
-# ✅ Per-base coverage included
-python scripts/calculate_coverage.py --bam alignment.bam --region chr1:1000-2000 --per-base
-```
