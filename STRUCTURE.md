@@ -11,10 +11,10 @@ cc-dnawork-plugin/
 ├── scientific-skills/
 │   ├── sequence-io/              # 本番スキル
 │   ├── blast-search/             # 本番スキル
-│   ├── inbox/                    # 未整理スキル（68個）
-│   │   ├── biopython/
-│   │   ├── pysam/
+│   ├── inbox/                    # 未整理スキル（64個）
 │   │   ├── scanpy/
+│   │   ├── rdkit/
+│   │   ├── matplotlib/
 │   │   └── ...
 │   └── archived/                 # アーカイブ（統合元など）
 ├── README.md                      # プロジェクト概要（英語）
@@ -36,7 +36,7 @@ cc-dnawork-plugin/
 | `bam-toolkit/` | 本番 | BAM/SAM/CRAM アライメントファイル操作 |
 | `vcf-toolkit/` | 本番 | VCF/BCF バリアントファイル操作 |
 | `igv-integration/` | 本番 | IGV 自動スナップショット生成 |
-| `inbox/` | 未整理 | K-Dense からの移行スキル（68個） |
+| `inbox/` | 未整理 | K-Dense からの移行スキル（64個） |
 | `archived/` | アーカイブ | 統合済みの旧スキル |
 
 ## Files
@@ -45,7 +45,7 @@ cc-dnawork-plugin/
 
 **`.claude-plugin/marketplace.json`**
 - Claude Code plugin configuration
-- 68 個のスキルパスを定義
+- 64 個のスキルパスを定義
 - Plugin メタデータを含む
 
 ### Documentation
@@ -370,7 +370,7 @@ Practical usage examples
 
 | 項目 | K-Dense | cc-dnawork |
 |------|--------|-----------|
-| スキル数 | 125+ | 4 本番 + 68 inbox |
+| スキル数 | 125+ | 6 本番 + 64 inbox |
 | 設計方針 | ツール単位 | 責任単位 |
 | SKILL.md サイズ | 大きい | 小さい（<400行） |
 
