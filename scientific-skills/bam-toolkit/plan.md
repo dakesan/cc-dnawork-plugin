@@ -231,15 +231,15 @@ python calculate_coverage.py \
 
 ## Implementation Plan
 
-1. ⏳ Create directory structure
-2. ⏳ Write plan.md (this file)
-3. ⏳ Implement scripts
-   - [ ] extract_reads.py
-   - [ ] extract_indels.py
-   - [ ] calculate_coverage.py
-4. ⏳ Create SKILL.md
-5. ⏳ Test with real BAM files
-6. ⏳ Integrate with project
+1. ✅ Create directory structure
+2. ✅ Write plan.md (this file)
+3. ✅ Implement scripts
+   - [x] extract_reads.py (with paired-end mate information)
+   - [x] extract_indels.py
+   - [x] calculate_coverage.py (statistics only, no per-base)
+4. ✅ Create SKILL.md
+5. ✅ Test with sample BAM files
+6. ⏳ Integrate with project (move to production)
 
 ## Testing Strategy
 
@@ -265,9 +265,9 @@ python calculate_coverage.py \
 
 **calculate_coverage.py:**
 - Test 1: Summary statistics only
-- Test 2: Per-base coverage
-- Test 3: Quality filters
-- Test 4: Zero coverage regions
+- Test 2: Quality filters (--min-mapq, --min-baseq)
+- Test 3: Zero coverage regions
+- Test 4: Large regions (long-read safe)
 
 ## Integration with Existing Skills
 
@@ -284,11 +284,11 @@ python calculate_coverage.py \
 1. ⏳ Should extract_reads.py support multiple output formats (BAM, SAM, CRAM, JSON)?
    - **Decision**: BAM and JSON only for simplicity
 
-2. ⏳ Should we include read alignment statistics (average insert size, etc.)?
-   - **Decision**: Focus on extraction and coverage first, add statistics later if needed
+2. ✅ Should we include paired-end mate information?
+   - **Decision**: Yes. All mate information included (mate_reference_name, mate_reference_start, mate_is_reverse, template_length)
 
-3. ⏳ Maximum region size for per-base coverage?
-   - **Decision**: No hard limit, but warn if region > 100kb
+3. ✅ Per-base coverage support?
+   - **Decision**: Removed. Statistics only (mean, median, etc.) for long-read safety. Per-base output can be gigantic for long reads.
 
 4. ⏳ Should we support multiple regions in a single call?
    - **Decision**: Single region per call, use shell loops for multiple regions
