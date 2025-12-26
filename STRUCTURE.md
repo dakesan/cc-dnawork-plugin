@@ -32,6 +32,8 @@ cc-dnawork-plugin/
 |-------------|------|------|
 | `sequence-io/` | 本番 | FASTA/GenBank/FASTQ の読み書き |
 | `blast-search/` | 本番 | NCBI BLAST 配列類似性検索 |
+| `blat-api-searching/` | 本番 | BLAT ゲノムマッピング |
+| `vcf-toolkit/` | 本番 | VCF/BCF バリアントファイル操作 |
 | `inbox/` | 未整理 | K-Dense からの移行スキル（68個） |
 | `archived/` | アーカイブ | 統合済みの旧スキル |
 
@@ -89,18 +91,46 @@ FASTA/GenBank/FASTQ ファイルの読み書きと配列操作に特化。
 
 ### blast-search
 
-NCBI BLAST による配列類似性検索。Web API 優先。
+NCBI BLAST による配列類似性検索。BioPython 実装。
 
 | 機能 | ツール |
 |------|--------|
 | Web BLAST | Bio.Blast.NCBIWWW (qblast) |
-| クイック検索 | gget.blast |
 | 結果パース | Bio.Blast.NCBIXML |
-| ローカル BLAST | TBD |
+| JSON 出力 | scripts/run_blast_biopython.py |
 
-**参照ファイル:**
-- `references/ncbi_web.md` - qblast() の使い方
-- `references/result_parsing.md` - XML パース、フィルタリング
+**スクリプト:**
+- `scripts/run_blast_biopython.py` - BioPython qblast + JSON 出力
+
+### blat-api-searching
+
+UCSC BLAT API によるゲノムマッピング。高速配列アライメント。
+
+| 機能 | ツール |
+|------|--------|
+| ローカル BLAT | pxblat (C 拡張) |
+| JSON 出力 | scripts/run_local_blat.py |
+| BLAST URL API | scripts/run_blat_url.py |
+
+**スクリプト:**
+- `scripts/run_local_blat.py` - pxblat によるローカル実行
+- `scripts/run_blat_url.py` - UCSC BLAT URL API
+
+### vcf-toolkit
+
+VCF/BCF バリアントファイルの統計情報計算、フィルタリング、JSON 出力。WGS/WES 解析結果の確認と品質管理。
+
+| 機能 | ツール |
+|------|--------|
+| 統計情報計算 | scripts/vcf_stats.py |
+| VCF フィルタリング | scripts/filter_vcf.py |
+| JSON エクスポート | scripts/inspect_vcf.py |
+| 基盤ライブラリ | pysam |
+
+**スクリプト:**
+- `scripts/vcf_stats.py` - バリアント統計計算（品質、深度、AF）
+- `scripts/filter_vcf.py` - VCF フィルタリング（VCF 出力）
+- `scripts/inspect_vcf.py` - バリアント抽出（JSON 出力）
 
 ---
 
@@ -308,9 +338,9 @@ Practical usage examples
 
 | 項目 | K-Dense | cc-dnawork |
 |------|--------|-----------|
-| スキル数 | 125+ | 1 本番 + 68 inbox |
+| スキル数 | 125+ | 4 本番 + 68 inbox |
 | 設計方針 | ツール単位 | 責任単位 |
-| SKILL.md サイズ | 大きい | 小さい（<150行） |
+| SKILL.md サイズ | 大きい | 小さい（<400行） |
 
 ## How to Use
 
