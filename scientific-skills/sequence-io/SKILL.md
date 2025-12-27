@@ -1,5 +1,5 @@
 ---
-name: bio-seq
+name: bio-fasta
 description: "Read/write FASTA, GenBank, FASTQ files. Sequence manipulation (complement, translate). Indexed random access via faidx. For NGS pipelines (SAM/BAM/VCF), use pysam. For BLAST, use gget or blat-integration."
 user_invocable: true
 ---
