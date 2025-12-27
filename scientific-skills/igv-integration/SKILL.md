@@ -1,6 +1,7 @@
 ---
-name: igv-integration
+name: bio-igv
 description: "This skill should be used when the user needs to visualize BAM alignment files in IGV (Integrative Genomics Viewer). Triggers include requests to generate IGV screenshots, visualize genomic regions with multiple BAM tracks, or create batch visualizations for WGS analysis results."
+user_invocable: true
 ---
 
 # IGV Integration

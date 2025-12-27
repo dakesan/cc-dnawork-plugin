@@ -1,6 +1,7 @@
 ---
-name: bam-toolkit
+name: bio-bam
 description: "This skill should be used when the user asks to analyze BAM/SAM/CRAM alignment files from WGS/WES sequencing. Triggers include requests to extract reads from specific regions, identify insertions and deletions, calculate coverage statistics, or export read data as JSON for downstream analysis."
+user_invocable: true
 ---
 
 # BAM Toolkit

@@ -1,6 +1,7 @@
 ---
-name: blast-search
+name: bio-blast
 description: "NCBI BLAST sequence similarity search using BioPython. Use when a user wants to run BLAST programmatically with blastn/blastp and retrieve results in JSON format."
+user_invocable: true
 ---
 
 # BLAST Search

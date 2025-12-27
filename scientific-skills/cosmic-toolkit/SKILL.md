@@ -1,6 +1,7 @@
 ---
-name: cosmic-toolkit
+name: bio-cosmic
 description: "This skill should be used when the user needs to query COSMIC Cancer Gene Census to check if genes are known cancer genes. Triggers include requests to annotate genes with cancer information, check if variants are in cancer genes, or retrieve cancer gene properties from COSMIC database."
+user_invocable: true
 ---
 
 # COSMIC Toolkit

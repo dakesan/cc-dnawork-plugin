@@ -1,6 +1,7 @@
 ---
-name: vcf-toolkit
+name: bio-vcf
 description: "This skill should be used when the user asks to analyze, filter, or inspect VCF/BCF variant files from WGS/WES sequencing. Triggers include requests to calculate variant statistics, filter variants by quality/depth/frequency, extract variants from specific chromosomes or regions, or export variant data as JSON for downstream analysis."
+user_invocable: true
 ---
 
 # VCF Toolkit

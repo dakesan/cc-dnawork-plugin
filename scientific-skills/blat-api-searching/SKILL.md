@@ -1,6 +1,7 @@
 ---
-name: blat-api-searching
+name: bio-blat
 description: "Runs local BLAT searches for DNA sequence alignment against hg38 or CHM13 using local .2bit references. Use when a user wants to align a DNA sequence without relying on UCSC API access."
+user_invocable: true
 ---
 
 # BLAT API Searching
